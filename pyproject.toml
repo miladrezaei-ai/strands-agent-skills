@@ -1,7 +1,7 @@
 [project]
 name = "strands"
 version = "0.1.0"
-description = "Add your description here"
+description = "Demonstration of the Strands AgentSkills plugin — filesystem and programmatic skill authoring"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
