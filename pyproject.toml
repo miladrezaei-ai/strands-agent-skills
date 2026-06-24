@@ -7,4 +7,5 @@ requires-python = ">=3.12"
 dependencies = [
     "strands-agents>=1.44.0",
     "strands-agents-tools>=0.8.1",
+    "streamlit>=1.58.0",
 ]
