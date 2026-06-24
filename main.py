@@ -1,51 +1,25 @@
-from strands import Agent, AgentSkills, Skill
+from strands import Agent, AgentSkills
 
-# ---------------------------------------------------------------------------
-# Approach 1: Filesystem-based skills
-# Each subdirectory under ./skills/ that contains a SKILL.md is auto-loaded.
-# ---------------------------------------------------------------------------
-filesystem_plugin = AgentSkills(skills="./skills/")
+plugin = AgentSkills(skills="./skills/")
+agent = Agent(plugins=[plugin])
 
-agent = Agent(plugins=[filesystem_plugin])
-
-print("=== Filesystem Skills Demo ===\n")
-
-response = agent("Good morning! How are you today?")
+# --- Skill 1: email-drafter ---
+print("\n" + "=" * 60)
+print("SKILL: email-drafter")
+print("=" * 60)
+response = agent("Write an email to my manager asking for this Friday off because I have a family event.")
 print(response)
-print()
 
-response = agent("Can you explain what a plugin system is?")
+# --- Skill 2: bug-investigator ---
+print("\n" + "=" * 60)
+print("SKILL: bug-investigator")
+print("=" * 60)
+response = agent("TypeError: Cannot read properties of undefined (reading 'map') at App.js:42")
 print(response)
-print()
 
-# ---------------------------------------------------------------------------
-# Approach 2: Programmatic skill defined inline in code
-# Useful for dynamic or environment-specific instructions.
-# ---------------------------------------------------------------------------
-summarizer_skill = Skill(
-    name="summarizer",
-    description="Condenses any text into a crisp bullet-point summary, preserving all key facts.",
-    instructions=(
-        "You are a precise summarizer. When given a block of text:\n"
-        "1. Extract the 3-5 most important points.\n"
-        "2. Present them as concise bullet points (one line each).\n"
-        "3. Add a one-sentence TL;DR at the top.\n"
-        "Do not add opinions or information not present in the source text."
-    ),
-)
-
-programmatic_plugin = AgentSkills(skills=[summarizer_skill])
-agent2 = Agent(plugins=[programmatic_plugin])
-
-print("=== Programmatic Skill Demo ===\n")
-
-sample_text = """
-Strands is an open-source framework for building AI agents.
-It provides a simple Python and TypeScript SDK, built-in tool support,
-multi-agent orchestration, and a plugin system for extending agent capabilities.
-The Skills plugin implements progressive disclosure — skill metadata loads
-upfront, while full instructions are fetched on demand, keeping system prompts lean.
-"""
-
-response = agent2(f"Please summarize this for me:\n{sample_text}")
+# --- Skill 3: git-commit-writer ---
+print("\n" + "=" * 60)
+print("SKILL: git-commit-writer")
+print("=" * 60)
+response = agent("I fixed the login button that wasn't responding on mobile devices due to a missing touch event handler.")
 print(response)
