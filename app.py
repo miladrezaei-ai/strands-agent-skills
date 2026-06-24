@@ -71,9 +71,9 @@ if prompt:
 
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            before = {s.name for s in plugin.get_activated_skills(agent)}
+            before = set(plugin.get_activated_skills(agent))
             response = agent(prompt)
-            after = {s.name for s in plugin.get_activated_skills(agent)}
+            after = set(plugin.get_activated_skills(agent))
 
         newly_activated = after - before
         skill_label = next(iter(newly_activated)) if newly_activated else "general"
