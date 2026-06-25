@@ -1,8 +1,8 @@
-# Strands AgentSkills — Skills Demo
+# Building Modular AI Agents with Strands Skills
 
-A minimal, article-ready project demonstrating the **Skills plugin** in the [Strands Agents](https://strandsagents.com) framework.
+A companion project for the article **"Building Modular AI Agents with Strands Skills"**.
 
-Skills solve a real problem: as agents handle more tasks, their system prompts balloon with competing instructions. The `AgentSkills` plugin implements *progressive disclosure* — only skill names and descriptions load upfront, and full instructions are fetched on demand when the agent decides it needs them.
+Demonstrates the `AgentSkills` plugin from the [Strands Agents](https://strandsagents.com) framework — three independent skills loaded by a single agent, each activated on demand.
 
 ---
 
@@ -10,12 +10,17 @@ Skills solve a real problem: as agents handle more tasks, their system prompts b
 
 ```
 strands-skills-demo/
-├── main.py                        # Entry point — demonstrates both skill approaches
+├── app.py                          # Streamlit UI (recommended)
+├── main.py                         # CLI demo
 ├── skills/
-│   ├── good-morning/
-│   │   └── SKILL.md               # Filesystem-based skill
-│   └── tech-explainer/
-│       └── SKILL.md               # Filesystem-based skill
+│   ├── email-drafter/
+│   │   └── SKILL.md
+│   ├── bug-investigator/
+│   │   └── SKILL.md
+│   └── git-commit-writer/
+│       └── SKILL.md
+├── .streamlit/
+│   └── secrets.toml.example        # API key template for Streamlit Cloud
 ├── pyproject.toml
 ├── .python-version
 └── uv.lock
@@ -23,111 +28,107 @@ strands-skills-demo/
 
 ---
 
-## How Skills Work
+## Prerequisites
 
-```
-Agent startup
-     │
-     ▼
-AgentSkills plugin injects skill metadata into system prompt
-     │
-     ▼
-Agent receives user message
-     │
-     ▼
-Agent calls `skills` tool with skill name  ◄── only when needed
-     │
-     ▼
-Full instructions loaded into context
-     │
-     ▼
-Agent executes with skill instructions
-```
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- An `ANTHROPIC_API_KEY` from [console.anthropic.com](https://console.anthropic.com)
 
 ---
 
 ## Quickstart
 
-**Prerequisites:** Python 3.12+, [uv](https://docs.astral.sh/uv/), and an `ANTHROPIC_API_KEY`.
-
 ```bash
-# Clone and install
+# 1. Clone
 git clone https://github.com/your-username/strands-skills-demo.git
 cd strands-skills-demo
+
+# 2. Install dependencies
 uv sync
 
-# Set your API key
+# 3. Set your API key
 export ANTHROPIC_API_KEY=sk-...
 
-# Run
+# 4. Run the Streamlit UI
+uv run streamlit run app.py
+
+# or run the CLI demo
 uv run python main.py
 ```
 
+Open `http://localhost:8501` in your browser.
+
 ---
 
-## Two Ways to Define Skills
+## How It Works
 
-### 1. Filesystem-based (SKILL.md)
-
-Create a directory with a `SKILL.md` file using YAML frontmatter:
+The agent is loaded with three skills. At startup only their names and descriptions enter the system prompt. Full instructions load on demand when the agent decides it needs them.
 
 ```
-skills/good-morning/
-└── SKILL.md
+User message
+     │
+     ▼
+Agent reads available skill names + descriptions
+     │
+     ▼
+Agent calls `skills` tool with the relevant skill name
+     │
+     ▼
+Full instructions load into context
+     │
+     ▼
+Agent responds using skill instructions
 ```
+
+### The Three Skills
+
+| Skill | Trigger | Output format |
+|-------|---------|---------------|
+| `email-drafter` | Email request | Subject / Dear / Body / Regards |
+| `bug-investigator` | Error or stack trace | 🔍 Root Cause / 🛠 Fix / ✅ Example |
+| `git-commit-writer` | Description of a code change | Conventional commit message |
+
+---
+
+## Defining a Skill
+
+Each skill is a directory with a `SKILL.md` file:
 
 ```markdown
 ---
-name: good-morning
-description: Responds to good-morning greetings with a warm reply and a joke.
+name: bug-investigator
+description: Analyzes an error message or stack trace and returns a structured diagnosis.
 ---
 
-# Good Morning Skill
+# Bug Investigator Skill
 
-You are a cheerful morning companion ...
+You are a senior software debugger. When given an error, respond in this format:
+
+🔍 Root Cause: ...
+🛠 Fix: ...
+✅ Example: ...
 ```
 
-Load it with:
+Load all skills in one line:
 
 ```python
 from strands import Agent, AgentSkills
 
-plugin = AgentSkills(skills="./skills/")   # loads all subdirectories
+plugin = AgentSkills(skills="./skills/")
 agent = Agent(plugins=[plugin])
-```
-
-### 2. Programmatic (inline `Skill` object)
-
-Define skills directly in code — useful for dynamic or environment-specific instructions:
-
-```python
-from strands import Agent, AgentSkills, Skill
-
-skill = Skill(
-    name="summarizer",
-    description="Condenses any text into a crisp bullet-point summary.",
-    instructions="Extract the 3-5 most important points as bullet points ...",
-)
-
-plugin = AgentSkills(skills=[skill])
-agent = Agent(plugins=[plugin])
-```
-
-You can also mix both approaches:
-
-```python
-plugin = AgentSkills(skills=["./skills/", skill])
 ```
 
 ---
 
-## SKILL.md Reference
+## Deploy to Streamlit Cloud
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `name` | Yes | Unique identifier — lowercase alphanumeric and hyphens, 1–64 chars |
-| `description` | Yes | Shown in the system prompt; helps the agent decide when to activate the skill |
-| `allowed-tools` | No | Space-delimited list of tools the skill may use |
+1. Push this repo to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io) and connect your repo
+3. Under **App Settings → Secrets**, add:
+
+```toml
+ANTHROPIC_API_KEY = "sk-..."
+```
 
 ---
 
