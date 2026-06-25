@@ -32,7 +32,7 @@ strands-skills-demo/
 
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- An `ANTHROPIC_API_KEY` from [console.anthropic.com](https://console.anthropic.com)
+- AWS credentials configured (see [AWS CLI setup](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html))
 
 ---
 
@@ -46,8 +46,14 @@ cd strands-skills-demo
 # 2. Install dependencies
 uv sync
 
-# 3. Set your API key
-export ANTHROPIC_API_KEY=sk-...
+# 3. Configure AWS credentials (if not already set up)
+# Option A — environment variables
+export AWS_ACCESS_KEY_ID=...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_DEFAULT_REGION=us-east-1
+
+# Option B — AWS config file (~/.aws/credentials)
+# Run: aws configure
 
 # 4. Run the Streamlit UI
 uv run streamlit run app.py
@@ -124,10 +130,12 @@ agent = Agent(plugins=[plugin])
 
 1. Push this repo to GitHub
 2. Go to [share.streamlit.io](https://share.streamlit.io) and connect your repo
-3. Under **App Settings → Secrets**, add:
+3. Under **App Settings → Secrets**, add your AWS credentials:
 
 ```toml
-ANTHROPIC_API_KEY = "sk-..."
+AWS_ACCESS_KEY_ID = "..."
+AWS_SECRET_ACCESS_KEY = "..."
+AWS_DEFAULT_REGION = "us-east-1"
 ```
 
 ---
